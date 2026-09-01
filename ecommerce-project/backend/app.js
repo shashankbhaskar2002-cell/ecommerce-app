@@ -1,3 +1,4 @@
+
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -15,31 +16,63 @@ import reviewRoutes from "./routes/reviewRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
+
 const app = express();
 
 
-// Middlewares
+// ===============================
+// MIDDLEWARES
+// ===============================
 
 app.use(express.json());
 
 app.use(
     express.urlencoded({
-        extended:true
+        extended: true
     })
 );
 
+
+// ===============================
+// CORS CONFIGURATION
+// ===============================
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://ecommerce-frontend-1lxe.onrender.com"
+];
+
 app.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: function (origin, callback) {
+
+            // Allow requests without origin
+            // Example: Postman / server-to-server
+            if (!origin) {
+                return callback(null, true);
+            }
+
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+
+            return callback(
+                new Error("Not allowed by CORS")
+            );
+        },
+
         credentials: true
     })
 );
 
+
 app.use(cookieParser());
 
 
-
-// Routes
+// ===============================
+// ROUTES
+// ===============================
 
 app.use(
     "/api/users",
@@ -52,69 +85,54 @@ app.use(
     productRoutes
 );
 
-app.use(
 
+app.use(
     "/api/cart",
-
     cartRoutes
-
 );
 
 
-
-app.use( "/api/address",addressRoutes);
-
-
-
+app.use(
+    "/api/address",
+    addressRoutes
+);
 
 
 app.use(
-
     "/api/orders",
-
     orderRoutes
-
 );
 
 
 app.use(
-
-"/api/payment",
-
-paymentRoutes
-
+    "/api/payment",
+    paymentRoutes
 );
 
 
 app.use(
-
-"/api/reviews",
-
-reviewRoutes
-
+    "/api/reviews",
+    reviewRoutes
 );
-
-
 
 
 app.use(
-
-"/api/wishlist",
-
-wishlistRoutes
-
+    "/api/wishlist",
+    wishlistRoutes
 );
 
 
+app.use(
+    "/api/admin",
+    adminRoutes
+);
 
 
+// ===============================
+// DEFAULT ROUTE
+// ===============================
 
-app.use("/api/admin", adminRoutes);
-
-
-// Default Route
-
-app.get("/",(req,res)=>{
+app.get("/", (req, res) => {
 
     res.send(
         "E-Commerce Backend Running Successfully"
@@ -123,13 +141,13 @@ app.get("/",(req,res)=>{
 });
 
 
-
-// Error Middleware
+// ===============================
+// ERROR MIDDLEWARE
 // ALWAYS LAST
+// ===============================
 
 app.use(errorMiddleware);
 
 
-
-
 export default app;
+
