@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -64,9 +65,7 @@ function Login() {
             console.log("LOGIN RESPONSE:", data);
 
             if (!data.token) {
-                alert(
-                    "Login successful but token was not received."
-                );
+                alert("Login successful but token was not received.");
                 return;
             }
 
@@ -91,13 +90,31 @@ function Login() {
             navigate("/");
 
         } catch (error) {
-            console.error(
-                "LOGIN ERROR:",
-                error
-            );
+            console.error("LOGIN ERROR:", error);
+
+            const message =
+                error.response?.data?.message || "";
+
+            if (
+                message.toLowerCase().includes(
+                    "verify your account"
+                )
+            ) {
+                alert(
+                    "Your account is not verified. Please enter the OTP."
+                );
+
+                navigate("/verify-otp", {
+                    state: {
+                        email: formData.email
+                    }
+                });
+
+                return;
+            }
 
             alert(
-                error.response?.data?.message ||
+                message ||
                 "Login Failed"
             );
 
@@ -115,7 +132,6 @@ function Login() {
 
             <form onSubmit={handleSubmit}>
 
-                {/* Email */}
                 <input
                     type="email"
                     name="email"
@@ -125,7 +141,6 @@ function Login() {
                     className="w-full border p-3 rounded-lg mb-4"
                 />
 
-                {/* Password */}
                 <div className="relative">
 
                     <input
@@ -157,7 +172,6 @@ function Login() {
 
                 </div>
 
-                {/* Remember Me */}
                 <div className="flex items-center mb-6">
 
                     <input
@@ -177,7 +191,6 @@ function Login() {
 
                 </div>
 
-                {/* Login Button */}
                 <button
                     type="submit"
                     disabled={loading}
@@ -190,7 +203,6 @@ function Login() {
 
             </form>
 
-            {/* Register */}
             <div className="text-center mt-6">
 
                 <span className="text-gray-600">
@@ -214,3 +226,4 @@ function Login() {
 }
 
 export default Login;
+
